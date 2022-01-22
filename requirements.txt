@@ -1,2 +1,2 @@
 audiobooker
-ovos_workshop>=0.0.5a1
+ovos_workshop~=0.0.5a7

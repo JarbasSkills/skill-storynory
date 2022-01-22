@@ -4,7 +4,7 @@ from audiobooker.scrappers.storynory import StoryNory
 from ovos_plugin_common_play.ocp import MediaType, PlaybackType
 from ovos_utils.parse import fuzzy_match, MatchStrategy
 from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill, \
-    ocp_search
+    ocp_search, ocp_featured_media
 
 
 class StoryNorySkill(OVOSCommonPlaybackSkill):
@@ -23,6 +23,12 @@ class StoryNorySkill(OVOSCommonPlaybackSkill):
         return min(100, score)
 
     # common play
+    @ocp_featured_media()
+    def featured_media(self):
+        for book in StoryNory.scrap_popular():
+            if book.streams:
+                yield self._book2ocp(book)
+
     @ocp_search()
     def search_audiobooks(self, phrase, media_type):
         # match the request media_type
@@ -49,9 +55,9 @@ class StoryNorySkill(OVOSCommonPlaybackSkill):
                                     base_score=base_score)
             yield self._book2ocp(book, score)
 
-    def _book2ocp(self, book, score):
+    def _book2ocp(self, book, score=50):
         author = " ".join([au.first_name + au.last_name for au in
-                            book.authors])
+                           book.authors])
         pl = [{
             "match_confidence": score,
             "media_type": MediaType.AUDIOBOOK,
